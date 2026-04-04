@@ -49,7 +49,6 @@ def _default_pdf(repo: Path) -> Path:
 
 def main() -> None:
     load_dotenv()
-    _ensure_ffmpeg()
     parser = argparse.ArgumentParser(description="Lecture deck → narrated video pipeline")
     parser.add_argument(
         "--repo-root",
@@ -70,6 +69,7 @@ def main() -> None:
         help="Do not regenerate style.json if it already exists",
     )
     args = parser.parse_args()
+    _ensure_ffmpeg()
 
     repo = args.repo_root.resolve()
     cfg = PipelineConfig.from_env(repo)
