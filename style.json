@@ -1,0 +1,11 @@
+{
+  "tone": "Clear, approachable classroom delivery",
+  "pacing": "Moderate, with pauses after key definitions",
+  "fillers_and_verbal_habits": [],
+  "framing_patterns": "Motivate with a question or scenario, then explain the idea, then tie back to the learning goal.",
+  "audience_address": "Speak directly to students; occasional inclusive we",
+  "humor_and_asides": "Optional light asides; never at the expense of clarity",
+  "vocabulary_register": "Professional but plain language; define jargon when first used",
+  "rhythm_and_emphasis": "Alternate short punchy lines with short explanatory paragraphs",
+  "narration_guidance": "Sound like a live lecture: confident, warm, and precise. The pipeline replaces this file using LectureTranscript when you run without --skip-style."
+}

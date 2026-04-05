@@ -27,13 +27,15 @@ Create a `.env` file (optional) or export variables in your shell.
 | Variable | Purpose |
 |----------|---------|
 | `PIPELINE_LLM_PROVIDER` | `openai` (default) or `google` |
-| `PIPELINE_TTS_PROVIDER` | `openai` (default) or `elevenlabs` |
+| `PIPELINE_TTS_PROVIDER` | `openai` (default), `elevenlabs`, or `gemini` (alias: `google`) |
 | `OPENAI_API_KEY` | Required if using OpenAI for LLM or TTS |
 | `OPENAI_MODEL` | Default `gpt-4o` |
 | `OPENAI_TTS_MODEL` | Default `tts-1` |
 | `OPENAI_TTS_VOICE` | Default `alloy` |
-| `GOOGLE_API_KEY` | Required if `PIPELINE_LLM_PROVIDER=google` |
+| `GOOGLE_API_KEY` | Required if `PIPELINE_LLM_PROVIDER=google` or `PIPELINE_TTS_PROVIDER=gemini` |
 | `GOOGLE_MODEL` | Default `gemini-2.0-flash` |
+| `GEMINI_TTS_MODEL` | Default `gemini-2.5-flash-preview-tts` ([Gemini TTS](https://ai.google.dev/gemini-api/docs/speech-generation)) |
+| `GEMINI_TTS_VOICE` | Default `Kore` (see Google voice list for the TTS model) |
 | `ELEVENLABS_API_KEY` | Required if `PIPELINE_TTS_PROVIDER=elevenlabs` |
 | `ELEVENLABS_VOICE_ID` | Voice ID from ElevenLabs |
 | `ELEVENLABS_MODEL` | Optional; default `eleven_multilingual_v2` |
@@ -59,7 +61,7 @@ Each run creates `projects/project_YYYYMMDD_HHMMSS/` with JSON artifacts, `slide
 
 ```
 ├── README.md
-├── style.json                 # produced by first run (instructor voice profile)
+├── style.json                 # committed defaults; regenerated from LectureTranscript each run unless --skip-style
 ├── Lecture_17_AI_screenplays.pdf
 ├── LectureTranscript
 ├── requirements.txt

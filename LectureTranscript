@@ -1,0 +1,47 @@
+[Auto-generated transcript. Edits may have been applied for clarity.]
+
+Okay, uh, it is a few minutes after four, we got a good number of people today. Awesome. So yeah, let's get started. Okay, so, um…
+
+Also, updates. Homework is out. It'll be due Sunday, 11 a.m. Not 11 p.m. — 11 a.m., okay?
+
+Now, if you got in late and you're stressing about grades, first thing is, dude, it's Yale SOM, grades don't matter, right? Second thing is, I really care about the project. So don't stress about one homework you couldn't get in.
+
+Okay? For those of you that just got here, um, haven't ever done online class with me before, I actually read the chat, like a Twitch streamer, so you can type in the chat and say stuff, I'll respond to it. Um, like and subscribe. No swearing, no spamming. Class is more fun if you type in the chat, so don't be shy.
+
+Alright, um, any other questions before we begin the lecture today?
+
+Nope. Alright, let's get the party started.
+
+Alright, so y'all see my slides? See a big robot that says Retrieval Augmented Generation? Yeah, let me know in the chat. Alright.
+
+So, today I want to teach you how to take your chatbot — at this point your chatbot can chat, right? It can memorize your chat history, cool. It can search the web, cool. It can write code, cool. It can call tools, fill out forms, click buttons, okay?
+
+But one thing your chatbot can't do yet… is ingest, like, a thousand pages of text.
+
+Okay, so what if you're Yale Admissions and 10,000 applications come in? Each application is your resume, your essay, reference letters, transcript — like six text files per person. Wouldn't it be cool if an AI could access all those documents and search them in a clever way? You say, give me everyone from Oklahoma, and it tells you, amongst Oklahoma, these are your best candidates. That'd be awesome.
+
+Except how do you fit tens of thousands of documents into the prompt? Can you fit a million documents into your chat and have it access them intelligently?
+
+The answer is yeah, you can. The technique is called retrieval augmented generation, which I'll yap about today. We're going to make a chatbot that does RAG. The documents you'll use — it's gonna be the Harry Potter books. All seven books, one giant PDF, three thousand pages. We're gonna shove that into our chatbot and ask questions about Harry Potter, right?
+
+Okay, so the reason you can't shove all the books into the window is the context window has a limited size. I asked Gemini how big the window is — million tokens, roughly fifteen hundred pages of text. My Harry Potter file is three thousand pages. You can't fit the whole thing in one shot.
+
+Even if the window gets bigger, I still wouldn't recommend stuffing everything in. First, the answer might get lost in the middle. Second, you pay for every token every time you talk — million tokens a shot is slow and expensive. Better to put in selective pages relevant to your query. Find ten pages that matter. That's RAG.
+
+R-A-G: retrieval is retrieve documents. Augmented generation means we augment the process of generating the answer with retrieved documents.
+
+You take the book, store it in a database — a special kind of database. Once pages are in, it can search for what's relevant very quickly. What makes it work is text embedding: turn text into numbers, like coordinates on a map, so things about Snape cluster together and things about Hagrid cluster somewhere else.
+
+You chunk the book into pages with a little overlap so you don't cut Dumbledore off mid-sentence. You embed each chunk. You store vectors in a vector store — really a MongoDB collection with the text, metadata like page number, and the embedding vector. You put an index on it so similarity search is fast — cosine similarity, think of vectors pointing in similar directions.
+
+At query time: embed the question, ask the store for the top K chunks, pass those chunks plus the question to the model, get the answer. That's the workflow.
+
+I vibe-code a lot of this with Cursor — used to be a data science job to make plots; now I ask the AI and it runs in twenty seconds. So yeah, the field moves fast.
+
+For embeddings I use Gemini Embedding 001, 768 dimensions — good enough for Harry Potter; you can go bigger but don't waste money. OpenAI and others have embedding models too.
+
+When you run out of API rate limits, batch your embedding calls — sleep between batches, retry on errors, skip chunks already stored so you don't re-pay if the job dies halfway.
+
+Next class maybe we do agentic AI — take a book like Harry Potter and have an agent write a movie script. That's someone's job — screenwriter — so we'll play with that idea.
+
+Alright, that's the energy for today: conversational, a little slang, rhetorical questions, chat check-ins, self-deprecating asides, but when we hit technical material we slow down and define terms. Peace out everyone.
