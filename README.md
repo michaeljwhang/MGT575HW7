@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 Place **`Lecture_17_AI_screenplays.pdf`** in the repository root (assignment layout).
 
-Save your lecture transcript as **`LectureTranscript`** (no extension) in the repo root. An empty file will cause the style step to fail until you add text.
+The repo includes a committed **`LectureTranscript`** (no extension) with enough sample text for the style step to run. Replace it with your **full** auto-generated transcript for the closest match to the instructor’s voice.
 
 ### Environment variables
 
