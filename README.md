@@ -5,8 +5,8 @@ Python pipeline that rasterizes **Lecture 17** slides (`Lecture_17_AI_screenplay
 ## Prerequisites
 
 - Python 3.10+
-- [ffmpeg](https://ffmpeg.org/) on your `PATH` (required for video mux/concat and for **pydub** when TTS responses are merged from chunks)
-- API keys (see below)
+- [ffmpeg](https://ffmpeg.org/) on your `PATH` (required for video mux/concat and for **pydub** when TTS responses are merged from chunks). On macOS: `brew install ffmpeg`. The entrypoint prepends `/opt/homebrew/bin` and `/usr/local/bin` so Homebrew installs are found even when the app launcher has a minimal `PATH`.
+- API keys for a **full** run (see below). For a **local wiring check** without keys, use `--smoke-test`.
 
 ## Setup
 
@@ -49,11 +49,20 @@ From the repo root:
 python run_lecture_pipeline.py
 ```
 
+**Sanity check (no API calls):** rasterizes the PDF, writes stub `premise.json` / `arc.json` / slide JSON, generates silent MP3s with ffmpeg, and muxes the final MP4:
+
+```bash
+python run_lecture_pipeline.py --smoke-test
+```
+
+Copy `.env.example` to `.env` and set keys for a real agent + TTS run.
+
 Options:
 
 - `--pdf PATH` — override PDF location
 - `--transcript PATH` — override transcript path
 - `--skip-style` — skip regenerating `style.json` if it already exists
+- `--smoke-test` — no API keys; end-to-end check (rasterize, stub JSON, silent audio, MP4)
 
 Each run creates `projects/project_YYYYMMDD_HHMMSS/` with JSON artifacts, `slide_images/`, `audio/`, and the final `<pdf_basename>.mp4` (e.g. `Lecture_17_AI_screenplays.mp4`).
 

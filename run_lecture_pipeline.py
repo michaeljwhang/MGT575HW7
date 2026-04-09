@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -20,6 +21,17 @@ from lecture_agents.slide_description_agent import run_slide_descriptions
 from lecture_agents.style_agent import build_style_json
 from lecture_agents.tts import synthesize_slide_mp3
 from lecture_agents.video_assembly import assemble_lecture_video
+
+
+def _prepend_common_binary_dirs() -> None:
+    """Help GUI-launched Python find Homebrew ffmpeg on macOS."""
+    extra = ["/opt/homebrew/bin", "/usr/local/bin"]
+    current = os.environ.get("PATH", "")
+    parts = [p for p in current.split(os.pathsep) if p]
+    for d in reversed(extra):
+        if d not in parts:
+            parts.insert(0, d)
+    os.environ["PATH"] = os.pathsep.join(parts)
 
 
 def _ensure_ffmpeg() -> None:
@@ -49,6 +61,7 @@ def _default_pdf(repo: Path) -> Path:
 
 def main() -> None:
     load_dotenv()
+    _prepend_common_binary_dirs()
     parser = argparse.ArgumentParser(description="Lecture deck → narrated video pipeline")
     parser.add_argument(
         "--repo-root",
@@ -68,6 +81,11 @@ def main() -> None:
         action="store_true",
         help="Do not regenerate style.json if it already exists",
     )
+    parser.add_argument(
+        "--smoke-test",
+        action="store_true",
+        help="No API keys: rasterize PDF, write stub JSON, silent MP3s, assemble MP4 (sanity check).",
+    )
     args = parser.parse_args()
     _ensure_ffmpeg()
 
@@ -79,6 +97,25 @@ def main() -> None:
         raise FileNotFoundError(
             f"PDF not found: {pdf}. Place Lecture_17_AI_screenplays.pdf in the repo root."
         )
+
+    if args.smoke_test:
+        from lecture_agents.smoke_pipeline import run_smoke_pipeline
+
+        style_path = repo / "style.json"
+        if not style_path.is_file():
+            raise FileNotFoundError(
+                f"Missing {style_path}. Commit or create style.json before --smoke-test."
+            )
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        project_dir = repo / "projects" / f"project_{stamp}_smoke"
+        project_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Smoke test project: {project_dir}")
+        print("Rasterize → stub JSON → silent audio → video (no LLM/TTS APIs).")
+        final_mp4 = run_smoke_pipeline(
+            repo=repo, pdf=pdf, project_dir=project_dir, dpi=cfg.pdf_dpi
+        )
+        print(f"Done: {final_mp4}")
+        return
 
     transcript = (args.transcript or (repo / "LectureTranscript")).resolve()
     if not transcript.is_file():

@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 from pathlib import Path
 
 
 def _run(cmd: list[str], cwd: Path | None = None) -> None:
-    subprocess.run(cmd, check=True, cwd=cwd.as_posix() if cwd else None)
+    quiet = os.environ.get("PIPELINE_FFMPEG_VERBOSE", "").lower() not in ("1", "true", "yes")
+    kwargs: dict = {"check": True, "cwd": cwd.as_posix() if cwd else None}
+    if quiet:
+        kwargs["stdout"] = subprocess.DEVNULL
+        kwargs["stderr"] = subprocess.DEVNULL
+    subprocess.run(cmd, **kwargs)
 
 
 def mux_still_with_audio(image: Path, audio: Path, out_mp4: Path) -> None:
@@ -20,6 +26,8 @@ def mux_still_with_audio(image: Path, audio: Path, out_mp4: Path) -> None:
         image.as_posix(),
         "-i",
         audio.as_posix(),
+        "-vf",
+        "scale=trunc(iw/2)*2:trunc(ih/2)*2",
         "-c:v",
         "libx264",
         "-tune",
@@ -56,6 +64,7 @@ def assemble_lecture_video(
         list_path = td_path / "concat_list.txt"
         lines = "\n".join(f"file '{n}'" for n in segment_names) + "\n"
         list_path.write_text(lines, encoding="utf-8")
+        # Re-encode here so timestamps stay monotonic (stream copy can warn on still-image segments).
         _run(
             [
                 "ffmpeg",
@@ -66,8 +75,14 @@ def assemble_lecture_video(
                 "0",
                 "-i",
                 list_path.as_posix(),
-                "-c",
-                "copy",
+                "-c:v",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "192k",
                 final_mp4.as_posix(),
             ],
             cwd=td_path,
