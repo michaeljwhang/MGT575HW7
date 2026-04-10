@@ -9,7 +9,6 @@ venv/
 # Generated media (do not commit)
 projects/*/slide_images/**
 projects/*/audio/**
-projects/project_*/**
 projects/**/*.mp4
 projects/**/*.mp3
 projects/**/*.png

@@ -1,0 +1,22 @@
+{
+  "thesis": "AI can be used to generate long, coherent text documents, and this lecture will demonstrate building an agentic flow specifically for generating movie screenplays. This flow architecture is generalizable to other long text documents.",
+  "scope": "The lecture covers the challenges of generating long, coherent documents with AI, the hierarchical structure of screenplays, and a detailed breakdown of an 'agentic flow' involving premise, arc, sequence, and scene agents. It also touches on enhancing outputs with additional agents and generalizing the architecture to other document types. It will include a coding session for practical implementation. It does not delve into theoretical AI models beyond their application for text generation or advanced screenwriting theory.",
+  "learning_objectives": [
+    "Understand the challenges of generating long, coherent documents in one-shot with AI.",
+    "Learn how to build an agentic flow to generate screenplays for movies using a hierarchical approach.",
+    "Identify the roles of different agents (Premise, Arc, Sequence, Scene) in a document generation flow.",
+    "Understand how to add enhancement agents to improve the quality of intermediate outputs.",
+    "Recognize how this flow architecture can be generalized and modified for different long text document types (e.g., books, podcasts, business plans)."
+  ],
+  "audience": "The audience is likely technical, interested in practical applications of AI for content generation, AI practitioners, or developers, given the focus on 'agentic flows', 'JSON' outputs, and a 'coding session'.",
+  "key_themes": [
+    "AI generation of long, coherent text documents",
+    "Challenges of one-shot long-form AI generation (context drift, 'lost in the middle')",
+    "Hierarchical document structure (e.g., screenplays: premise, story arc, sequences, scenes)",
+    "Agentic flows for structured document generation",
+    "Roles of specialized agents (Premise, Arc, Sequence, Scene agents)",
+    "Enhancement agents for improving intermediate outputs",
+    "Generalizability of hierarchical agentic architectures to various document types"
+  ],
+  "constraints_for_narration": "The narration should maintain technical accuracy and specificity when describing the agentic flow, JSON outputs, and the practical implementation of AI for document generation. The use of 'A.W.E.S.O.M.-O' imagery suggests that a light-hearted or engaging tone, while still professional, might be appropriate."
+}
