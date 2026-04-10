@@ -47,7 +47,10 @@ def chat_vision(
 
 
 def _openai_text(cfg: PipelineConfig, system: str, user: str) -> str:
-    _require(bool(os.environ.get("OPENAI_API_KEY")), "OPENAI_API_KEY is required for OpenAI.")
+    _require(
+        bool((os.environ.get("OPENAI_API_KEY") or "").strip()),
+        "OPENAI_API_KEY is required for OpenAI.",
+    )
     from openai import OpenAI
 
     client = OpenAI()
@@ -63,7 +66,10 @@ def _openai_text(cfg: PipelineConfig, system: str, user: str) -> str:
 
 
 def _openai_vision(cfg: PipelineConfig, system: str, user: str, image_path: Path) -> str:
-    _require(bool(os.environ.get("OPENAI_API_KEY")), "OPENAI_API_KEY is required for OpenAI.")
+    _require(
+        bool((os.environ.get("OPENAI_API_KEY") or "").strip()),
+        "OPENAI_API_KEY is required for OpenAI.",
+    )
     from openai import OpenAI
 
     data = base64.b64encode(image_path.read_bytes()).decode("ascii")

@@ -25,7 +25,7 @@ class PipelineConfig:
             repo_root=repo_root.resolve(),
             llm_provider=os.environ.get("PIPELINE_LLM_PROVIDER", "openai").lower(),
             openai_model=os.environ.get("OPENAI_MODEL", "gpt-4o"),
-            google_model=os.environ.get("GOOGLE_MODEL", "gemini-2.0-flash"),
+            google_model=os.environ.get("GOOGLE_MODEL", "gemini-2.5-flash"),
             tts_provider=os.environ.get("PIPELINE_TTS_PROVIDER", "openai").lower(),
             openai_tts_model=os.environ.get("OPENAI_TTS_MODEL", "tts-1"),
             openai_tts_voice=os.environ.get("OPENAI_TTS_VOICE", "alloy"),

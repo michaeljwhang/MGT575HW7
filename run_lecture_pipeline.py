@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import subprocess
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
@@ -21,6 +22,60 @@ from lecture_agents.slide_description_agent import run_slide_descriptions
 from lecture_agents.style_agent import build_style_json
 from lecture_agents.tts import synthesize_slide_mp3
 from lecture_agents.video_assembly import assemble_lecture_video
+
+
+def _bootstrap_env_from_dotenv_aliases() -> None:
+    """Map common key names (e.g. React/Vite) and pick sensible provider defaults."""
+    if not os.environ.get("GOOGLE_API_KEY"):
+        for alt in (
+            "GEMINI_API_KEY",
+            "REACT_APP_GEMINI_API_KEY",
+            "VITE_GEMINI_API_KEY",
+            "GOOGLE_GENERATIVE_AI_API_KEY",
+        ):
+            v = os.environ.get(alt)
+            if v:
+                os.environ["GOOGLE_API_KEY"] = v
+                break
+    has_openai = bool((os.environ.get("OPENAI_API_KEY") or "").strip())
+    has_google = bool((os.environ.get("GOOGLE_API_KEY") or "").strip())
+    if not has_openai and has_google:
+        os.environ.setdefault("PIPELINE_LLM_PROVIDER", "google")
+        os.environ.setdefault("PIPELINE_TTS_PROVIDER", "gemini")
+    # If .env asked for OpenAI but no key, fall back when Google key exists.
+    if (
+        not (os.environ.get("OPENAI_API_KEY") or "").strip()
+        and (os.environ.get("GOOGLE_API_KEY") or "").strip()
+        and os.environ.get("PIPELINE_LLM_PROVIDER", "openai").lower() == "openai"
+    ):
+        os.environ["PIPELINE_LLM_PROVIDER"] = "google"
+    if (
+        not (os.environ.get("OPENAI_API_KEY") or "").strip()
+        and (os.environ.get("GOOGLE_API_KEY") or "").strip()
+        and os.environ.get("PIPELINE_TTS_PROVIDER", "openai").lower() == "openai"
+    ):
+        os.environ["PIPELINE_TTS_PROVIDER"] = "gemini"
+
+
+def resolve_pipeline_config(repo: Path) -> PipelineConfig:
+    """Apply effective provider when .env has empty strings or only one key kind."""
+    cfg = PipelineConfig.from_env(repo)
+    oa = (os.environ.get("OPENAI_API_KEY") or "").strip()
+    gg = (os.environ.get("GOOGLE_API_KEY") or "").strip()
+    el = (os.environ.get("ELEVENLABS_API_KEY") or "").strip()
+    if cfg.llm_provider == "openai" and not oa and gg:
+        cfg = replace(cfg, llm_provider="google")
+    if cfg.llm_provider == "google" and not gg and oa:
+        cfg = replace(cfg, llm_provider="openai")
+    if cfg.tts_provider == "openai" and not oa:
+        if gg:
+            cfg = replace(cfg, tts_provider="gemini")
+    if cfg.tts_provider == "elevenlabs" and not el:
+        if gg:
+            cfg = replace(cfg, tts_provider="gemini")
+        elif oa:
+            cfg = replace(cfg, tts_provider="openai")
+    return cfg
 
 
 def _prepend_common_binary_dirs() -> None:
@@ -60,7 +115,10 @@ def _default_pdf(repo: Path) -> Path:
 
 
 def main() -> None:
-    load_dotenv()
+    _repo = Path(__file__).resolve().parent
+    load_dotenv(_repo / ".env")
+    load_dotenv()  # also honor cwd-based .env if present
+    _bootstrap_env_from_dotenv_aliases()
     _prepend_common_binary_dirs()
     parser = argparse.ArgumentParser(description="Lecture deck → narrated video pipeline")
     parser.add_argument(
@@ -90,7 +148,7 @@ def main() -> None:
     _ensure_ffmpeg()
 
     repo = args.repo_root.resolve()
-    cfg = PipelineConfig.from_env(repo)
+    cfg = resolve_pipeline_config(repo)
 
     pdf = (args.pdf or _default_pdf(repo)).resolve()
     if not pdf.is_file():
